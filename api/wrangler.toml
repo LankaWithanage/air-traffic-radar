@@ -1,0 +1,9 @@
+# For deploying the Worker from the command line: `npx wrangler deploy` (inside this api/ folder).
+name = "air-traffic"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+# Who may use your API. Put your own GitHub Pages address here, e.g. "https://your-name.github.io".
+# "*" lets any page use it.
+ALLOWED_ORIGINS = "*"

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Air Traffic Radar</title>
+<meta name="description" content="A live radar of the planes passing over your home, built on free ADS-B data and OpenStreetMap.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%233ef2ff' d='M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap">
+<link rel="stylesheet" href="css/radar.css">
+</head>
+<body>
+<div id="wrap">
+  <header id="hd">
+    <div class="ttl">Air traffic <span id="rng"></span></div>
+    <div class="cnt"><span id="c-now"></span><span id="c-next"></span><span id="c-today"></span></div>
+    <div id="zoom"></div>
+    <button id="gear" class="gear" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.48.48 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.48.48 0 0 0-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg></button>
+    <div id="clock" class="clock"></div>
+  </header>
+  <div id="scope"><canvas id="cv"></canvas><div id="legend"></div><div id="banner" class="banner"></div></div>
+  <aside id="side">
+    <div id="next" class="next"></div>
+    <section><h2 data-in>Inside 2 km now</h2><div id="l-now" class="lst"></div></section>
+    <section><h2>Coming up</h2><div id="l-next" class="lst"></div></section>
+    <section class="over"><h2>Earlier</h2><div id="l-past" class="lst"></div></section>
+    <div class="credit"><span id="src">—</span> · routes and photos <a href="https://www.adsbdb.com">adsbdb</a> · map © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors · updated <span id="upd">—</span></div>
+  </aside>
+</div>
+
+<dialog id="settings">
+  <form method="dialog" id="sform">
+    <h2>Settings</h2>
+    <p class="note">Saved only in this browser. Nothing you enter here is sent anywhere except as described in the
+      <a href="https://github.com/LankaWithanage/air-traffic-radar#privacy" target="_blank" rel="noopener">privacy notes</a>.</p>
+    <fieldset>
+      <legend>Your location</legend>
+      <div class="row2">
+        <label>Latitude<input id="f-lat" inputmode="decimal" placeholder="51.47060" autocomplete="off"></label>
+        <label>Longitude<input id="f-lon" inputmode="decimal" placeholder="-0.50100" autocomplete="off"></label>
+      </div>
+      <div class="row2">
+        <button type="button" id="f-geo" class="ghost">Use my current location</button>
+        <label>Name on the radar<input id="f-label" maxlength="20" placeholder="Home" autocomplete="off"></label>
+      </div>
+      <p class="hint">Tip: in Google Maps, right-click your house and click the numbers at the top of the menu to copy them, then paste both here (or into Latitude).</p>
+    </fieldset>
+    <fieldset>
+      <legend>Flight data</legend>
+      <label class="radio"><input type="radio" name="src" value="demo"> Demo: simulated planes (no setup)</label>
+      <label class="radio"><input type="radio" name="src" value="api"> Live: my own API</label>
+      <label>API address<input id="f-api" placeholder="https://air-traffic.YOUR-NAME.workers.dev" autocomplete="off"></label>
+      <p class="hint">Live data needs a tiny free API of your own (about 5 minutes to set up). <a href="https://github.com/LankaWithanage/air-traffic-radar#2-get-your-own-api-free" target="_blank" rel="noopener">How to get one</a>.</p>
+    </fieldset>
+    <fieldset>
+      <legend>Range</legend>
+      <div id="f-range" class="chips"></div>
+    </fieldset>
+    <p id="f-err" class="err"></p>
+    <div class="actions">
+      <button type="button" id="f-clear" class="ghost">Forget passes</button>
+      <button type="button" id="f-cancel" class="ghost">Cancel</button>
+      <button type="submit" id="f-save" value="save">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="js/geo.js"></script>
+<script src="js/data.js"></script>
+<script src="js/map.js"></script>
+<script src="js/radar.js"></script>
+</body>
+</html>
