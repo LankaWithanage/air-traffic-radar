@@ -81,7 +81,9 @@ cd air-traffic-radar
 python api/proxy.py
 ```
 
-Open **http://localhost:8787**, set your location, choose **Live: my own API**, and enter `http://localhost:8787`.
+Open **http://localhost:8787** (the radar page, served by the script), set your location, choose **Live: my own API**,
+and enter `http://localhost:8787`. Use the page from this local address: browsers block a secure `https://` page,
+such as the GitHub Pages one, from calling an `http://localhost` API. For the GitHub Pages page, use option A.
 To open it from other devices on your home network, use `python api/proxy.py --host 0.0.0.0` and visit
 `http://<that computer's IP>:8787`.
 

@@ -37,8 +37,10 @@
     const where = `${S.lat.toFixed(5)},${S.lon.toFixed(5)},${S.range <= 5 ? "near" : "far"}`;
     if (where === mapFor) return;
     mapFor = where; MAPD = null; mapTried = Date.now();
-    SketchMap.load(S.lat, S.lon, S.range).then((m) => { if (mapFor === where) { MAPD = m; mapKey = ""; } })
-      .catch(() => { if (mapFor === where) mapFor = ""; });          // map servers busy: tried again in 2 minutes
+    const note = (t) => { $("mapnote").textContent = t; $("mapnote").classList.toggle("on", !!t && !S.kiosk); };
+    note("Loading the street map… (the first time can take up to a minute)");
+    SketchMap.load(S.lat, S.lon, S.range).then((m) => { if (mapFor === where) { MAPD = m; mapKey = ""; note(""); } })
+      .catch(() => { if (mapFor === where) { mapFor = ""; note("Street map servers are busy; trying again in 2 minutes"); } });
   }
   setInterval(() => { if (!MAPD && !mapFor && Date.now() - mapTried > 120000) loadMap(); }, 30000);
   function banner(err) {
@@ -69,7 +71,7 @@
       $("upd").textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" });
       $("src").textContent = d.source === "demo" ? "simulated planes (demo)" : `positions ${d.source}`;
       banner();
-    } else banner(d.error);
+    } else { banner(d.error); if (!data) side({ aircraft: [], recent: [], today: 0 }); }
     clearTimeout(timer); timer = setTimeout(load, S.demo ? 1000 : 3000);
   }
 
